@@ -14,6 +14,8 @@ import numpy as np
 import distance
 from sklearn.feature_extraction.text import CountVectorizer
 
+os.chdir('d:\\my\\live_talking')
+
 def get_corpus(num):
     wf = open('华熙生物/%s.txt' % num, 'w')
     a = set()
@@ -111,14 +113,31 @@ def jaccard_sim_get():
         _str2 = idx_corpus[idx2]
         print('[%s]最相似的段落为:\t[%s]\t,相似度为:[%s]' % (_str, _str2, sim))
 
+
+def run2():
+    c = 0
+    for ln in codecs.open('corpus_2.txt', 'r', encoding='utf8'):
+        try:
+            label, para = ln.strip().split('^', 1)
+            label = int(label)
+        
+        except Exception as e:
+            print(ln.strip())
+    
+        if label == 1:
+            c += 1
+
+    print(c)
+
         
 
 
 
 
 if __name__ == "__main__":
-    for i in range(1, 10):
-        union_sentence(i)
+    #for i in range(1, 10):
+    #    union_sentence(i)
     #get_corpus(sys.argv[1])
     #jaccard_sim_get()
-    #run()
+    run2()
+    
