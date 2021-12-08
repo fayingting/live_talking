@@ -5,6 +5,7 @@ import math
 import re
 import codecs
 import math
+import json
 from datetime import datetime
 from collections import defaultdict
 from collections import Counter 
@@ -13,17 +14,35 @@ import numpy as np
 import distance
 from sklearn.feature_extraction.text import CountVectorizer
 
+def get_corpus(num):
+    wf = open('华熙生物/%s.txt' % num, 'w')
+    a = set()
+    with open('华熙生物/%s.json' % num, 'r') as f:
+        data = json.load(f)
+        for row in data:
+            ed = row['ed']
+            if ed in a:
+                continue
+            r = row['onebest']
+            r = r.lower()
+            a.add(ed)
+            if len(r) == 1:
+                continue
+            wf.write('%s\n' % r)
+    print('finished')
+
+
 def union_sentence(f):
     """将句子合并成段落"""
 
     corpus = []
-    for ln in codecs.open('%s' % f, 'r', encoding='utf8'):
+    for ln in codecs.open('华熙生物/%s.txt' % f, 'r', encoding='utf8'):
         for item in list(ln.strip()):
             corpus.append(item)
     
     end_flag = -1
     para = []
-    new_f = '%s_filter.txt' % f.split('.')[0] 
+    new_f = '华熙生物/%s_filter.txt' % f 
     wf = codecs.open(new_f, 'w', encoding='utf8')
     for idx, char in enumerate(corpus):
         if char not in ['。', '！', '？'] and (end_flag == -1 or idx > end_flag):
@@ -35,6 +54,18 @@ def union_sentence(f):
             wf.write('%s\n' % ''.join(para))
             para = []
     print('[%s]finished' % f)
+
+def run():
+    need_word = [ln.strip() for ln in codecs.open('data/need_word', 'r', encoding='utf8')]
+    for ln in tqdm(codecs.open('corpus', 'r',  encoding='utf8')):
+        ln = ln.strip()
+        for item in need_word:
+            if ln.find(item) != -1:
+                print(ln)
+                break
+
+    print('finished')
+
 
 def edit_distance(s1, s2):
     """编辑距离"""
@@ -64,7 +95,10 @@ def jaccard_sim_get():
             char_set2 = set(_dict2.keys())
             j = len(char_set1 & char_set2)
             b = len(char_set1 | char_set2)
-            value = float(j) / b
+            if b == 0:
+                value = 0
+            else:
+                value = float(j) / b
             res[_idx][_idx2] = value
 
 
@@ -83,4 +117,8 @@ def jaccard_sim_get():
 
 
 if __name__ == "__main__":
-    jaccard_sim_get()
+    for i in range(1, 10):
+        union_sentence(i)
+    #get_corpus(sys.argv[1])
+    #jaccard_sim_get()
+    #run()
