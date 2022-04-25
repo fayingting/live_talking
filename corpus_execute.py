@@ -14,12 +14,14 @@ import numpy as np
 import distance
 from sklearn.feature_extraction.text import CountVectorizer
 
-os.chdir('d:\\my\\live_talking')
+currDir = os.path.normpath(os.path.dirname(__file__))
+sys.path.insert(0, currDir)
 
-def get_corpus(num):
-    wf = open('华熙生物/%s.txt' % num, 'w')
+def get_corpus(f):
+    """提取语音转化文本中的正文"""
+    wf = codecs.open('corpus.txt', 'w', encoding='utf8')
     a = set()
-    with open('华熙生物/%s.json' % num, 'r') as f:
+    with codecs.open(f, 'r', encoding='utf8') as f:
         data = json.load(f)
         for row in data:
             ed = row['ed']
@@ -38,14 +40,13 @@ def union_sentence(f):
     """将句子合并成段落"""
 
     corpus = []
-    for ln in codecs.open('华熙生物/%s.txt' % f, 'r', encoding='utf8'):
+    for ln in codecs.open(f, 'r', encoding='utf8'):
         for item in list(ln.strip()):
             corpus.append(item)
     
     end_flag = -1
     para = []
-    new_f = '华熙生物/%s_filter.txt' % f 
-    wf = codecs.open(new_f, 'w', encoding='utf8')
+    wf = codecs.open('corpus_filter.txt', 'w', encoding='utf8')
     for idx, char in enumerate(corpus):
         if char not in ['。', '！', '？'] and (end_flag == -1 or idx > end_flag):
             para.append(char)
@@ -58,8 +59,9 @@ def union_sentence(f):
     print('[%s]finished' % f)
 
 def run():
+    """提取有用的正文"""
     need_word = [ln.strip() for ln in codecs.open('data/need_word', 'r', encoding='utf8')]
-    for ln in tqdm(codecs.open('corpus', 'r',  encoding='utf8')):
+    for ln in tqdm(codecs.open('corpus_filter.txt', 'r',  encoding='utf8')):
         ln = ln.strip()
         for item in need_word:
             if ln.find(item) != -1:
@@ -139,5 +141,5 @@ if __name__ == "__main__":
     #    union_sentence(i)
     #get_corpus(sys.argv[1])
     #jaccard_sim_get()
-    run2()
+    run()
     
